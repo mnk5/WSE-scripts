@@ -1,0 +1,27 @@
+Function Interp(xval, Xs, Ys)
+ i = 2
+ While Xs(i, 1) >= Xs(i - 1, 1)
+
+'handle the case where x1 and x2 are equal
+    If Xs(i, 1) = Xs(i - 1, 1) Then
+        Interp = Ys(i, 1)
+        Exit Function
+    End If
+'go through this if statement if x1 is less than x2
+    If (xval < Xs(i, 1)) Then
+        x1 = Xs(i - 1, 1)
+        x2 = Xs(i, 1)
+        y1 = Ys(i - 1, 1)
+        y2 = Ys(i, 1)
+        Interp = y2 - (y2 - y1) / (x2 - x1) * (x2 - xval)
+        Exit Function
+    End If
+    i = i + 1
+ Wend
+ i = i - 1
+ x1 = Xs(i - 1, 1)
+ x2 = Xs(i, 1)
+ y1 = Ys(i - 1, 1)
+ y2 = Ys(i, 1)
+ Interp = y2 - (y2 - y1) / (x2 - x1) * (x2 - xval)
+End Function
