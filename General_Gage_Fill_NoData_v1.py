@@ -22,14 +22,14 @@ import numpy as np
 
 # provide file information
 os.chdir(r'C:\working')
-filename='SeidelCr_South_combined.csv'
+filename='USGS_Cedar_renton_15min.txt'
 Qcol= 5
 TScol=3
 timestep=15 # in minutes
 MaxGap=180 # in minutes
-FirstCharacter = '0' # For USGS data, 'U'
-DateFormat = '%m/%d/%Y %H:%M' # For USGS data, '%Y-%m-%d %H:%M'
-delimiter = ',' # For USGS data, '\t'
+FirstCharacter = 'U' # For USGS data, 'U'
+DateFormat = '%Y-%m-%d %H:%M' # For USGS data, '%Y-%m-%d %H:%M'
+delimiter = '\t' # For USGS data, '\t'
 
 # create variables
 date_str=[];

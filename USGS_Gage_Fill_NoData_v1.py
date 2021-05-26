@@ -23,9 +23,9 @@ import numpy as np
 
 # provide file information
 os.chdir(r'C:\working')
-filename='New_1.txt'
-Qcol=5
-TScol=3
+filename='SFStillaguamish_nrGraniteFalls_CombinedRecord.csv'
+Qcol=3
+TScol=2
 timestep=15 # in minutes
 MaxGap=180 # in minutes
 

@@ -91,10 +91,10 @@ start_time = df.index[0]
 end_time = df.index[-1]
 
 # Print read data for user verification
-print("Check correct columns were read \nNote that daylight savings timestamps are shifted back 1-hr from the input data")
-print("Timeseries start = {}".format(start_time.strftime('%Y-%m-%d %H:%M')))
-print("Timeseries end = {}".format(end_time.strftime('%Y-%m-%d %H:%M')))
-print("Gage value start = {:.1f}".format(df['Discharge'][0]))
+print "Check correct columns were read \nNote that daylight savings timestamps are shifted back 1-hr from the input data"
+print "Timeseries start = {}".format(start_time.strftime('%Y-%m-%d %H:%M'))
+print "Timeseries end = {}".format(end_time.strftime('%Y-%m-%d %H:%M'))
+print "Gage value start = {:.1f}".format(df['Discharge'][0])
 
 # Create a complete timeseries with 15-min timestep and a new dataframe to store the complete, filled timeseries
 # tz=None ensures this is timezone-naive
@@ -106,7 +106,7 @@ df_ts = pd.DataFrame(index=times)
 
 # Determine number of missing records in the original timeseries
 Num_missing = len(df_ts) - len(df)
-print("Missing records: {}".format(Num_missing))
+print "Missing records: {}".format(Num_missing)
 
 # Join the original gage data Dataframe (df) on index, leaves NaN where timestep is missing in original df
 df_full = df_ts.join(df)
@@ -142,9 +142,9 @@ df_full['Interp_Flag'] = np.where(((df_full['Discharge'] == -901) & (df_full['Co
 df_full['Discharge'] = np.where(((df_full['Interp_Flag'] == 1) & (df_full['Discharge'] == -901)), np.nan, df_full['Discharge'])
 
 # Interpolate on rows where Interp_Flag = 1 
-print("Interpolating missing data in gaps less than {} timesteps".format(TS_gap))
+print "Interpolating missing data in gaps less than {} timesteps".format(TS_gap)
 df_full['Discharge'] = np.where((df_full['Interp_Flag'] == 1), df_full['Discharge'].interpolate(), df_full['Discharge'])
-print("Filled records: {}".format(len(df_full[df_full['Interp_Flag'] == 1])))
+print "Filled records: {}".format(len(df_full[df_full['Interp_Flag'] == 1]))
 
 # Quick check plot to verify interpolation looks good
 f, ax = plt.subplots(figsize=(20,12))
@@ -162,7 +162,7 @@ plt.savefig('gage_data.png', bbox_inches='tight')
 #df_trim.plot_bokeh()
 
 # Write final, filled data to file
-print("Writing output file")
+print "Writing output file"
 ColNames = ['Discharge']
 fout = FileName[:-4]+'_filled.csv'
 df_full.to_csv(fout, columns=ColNames, index_label='Datetime', date_format=DateFormat)
@@ -188,6 +188,6 @@ template2 = """\
 with open(fn, 'a') as f:
     f.write(template2.format(df_interp.to_csv(columns=ColNames, index_label='Datetime', date_format=DateFormat)))
 
-print("Filled gage data file: {}".format(fout))
-print("Summary of missing and filled date/times: {}".format(fn))
-print("Gage data plot: {}".format('gage_data.png'))
+print "Filled gage data file: {}".format(fout)
+print "Summary of missing and filled date/times: {}".format(fn)
+print "Gage data plot: {}".format('gage_data.png')
