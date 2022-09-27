@@ -4,7 +4,6 @@
 # M. Karpack 5/25/2021
 
 library(ggplot2)
-library(readxl)
 library(reshape2)
 library(scales)
 library(lubridate)
@@ -92,14 +91,15 @@ flow_subset$Date_Time <- as.Date(flow_subset$Date_Time)
 # make plot
 
 timeline <- ggplot(events, aes(x=date, y=0, col = Type, label = Name)) +
-  labs(col="Event") +
+  labs(col="") +
   scale_color_manual(values = event_colors, labels = event_type, drop = FALSE) +
   theme_classic() +
   ylim(NA, max(events$text_position) + 0.5) +
-  geom_line(data = flow_subset, aes(x= Date_Time, y = scaled_flow), inherit.aes = FALSE, color = "gray85") +
+  xlim(NA, max(events$date)+ 100)+
+  geom_line(data = flow_subset, aes(x= Date_Time, y = scaled_flow), inherit.aes = FALSE, color = "gray75", size = 0.2) +
   geom_hline(yintercept = 0, color = "black", size = 1) +
   geom_segment(data = events[events$month_count == 1,], aes(y = position, yend = 0, xend = date), color = "black", size = 0.3) +
-  geom_point(aes(y=0), size = 3) +
+  geom_point(aes(y=0), size = 2) +
   theme(axis.line.y=element_blank(),
         axis.text.y=element_blank(),
         axis.title.x=element_blank(),
@@ -108,15 +108,17 @@ timeline <- ggplot(events, aes(x=date, y=0, col = Type, label = Name)) +
         axis.text.x =element_blank(),
         axis.ticks.x =element_blank(),
         axis.line.x =element_blank(),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        legend.text = element_text(margin = margin(r = 5, unit = "pt"))) +
+  #theme(plot.margin=unit(c(0.2,0.2,0.2, 0.2),"in")) +
   #geom_text(data=month_df, aes(x=month_range,y=-0.1,label=month_format),
             #size=2.5,vjust=0.5, color='black', angle=90) +
   geom_text(data=year_df, aes(x=year_range,y=-0.2,label=year_format, 
-                              fontface="bold"),size=3, color='black') +
-  geom_text(aes(y=text_position,label=stringr::str_wrap(Name, 15)),size=3, lineheight = 0.75)
+                              fontface="bold"),size=2.5, color='black') +
+  geom_text(aes(y=text_position,label=stringr::str_wrap(Name, 15)),size=2.5, lineheight = 0.75)
 
 
 timeline
 
 outfile <- "Reporting/Literature Review/Timeline.png"
-ggsave(outfile, timeline)
+ggsave(outfile, timeline, width = 6.5, units = "in", dpi = 400)

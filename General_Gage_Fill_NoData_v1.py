@@ -22,13 +22,13 @@ import numpy as np
 
 # provide file information
 os.chdir(r'C:\working')
-filename='USGS_Cedar_renton_15min.txt'
-Qcol= 5
+filename='HamsFork_Daily.txt'
+Qcol= 4
 TScol=3
-timestep=15 # in minutes
-MaxGap=180 # in minutes
+timestep=1440 # in minutes
+MaxGap=1440 # in minutes
 FirstCharacter = 'U' # For USGS data, 'U'
-DateFormat = '%Y-%m-%d %H:%M' # For USGS data, '%Y-%m-%d %H:%M'
+DateFormat = '%Y-%m-%d' # For USGS data, '%Y-%m-%d %H:%M'
 delimiter = '\t' # For USGS data, '\t'
 
 # create variables
@@ -58,9 +58,9 @@ print("Finished reading data")
 st_time=dobj[0]   #datetime.strptime(date_str[0],'%Y-%m-%d %H:%M')
 end_time=dobj[-1] #datetime.strptime(date_str[-1],'%Y-%m-%d %H:%M')
 delta=timedelta(minutes=timestep)
-print "Check correct columns were read..."
-print "Timeseries start = %s" %(st_time)
-print "Discharge start = %.1f" %(discharge[0])
+print("Check correct columns were read...")
+print("Timeseries start = %s" %(st_time))
+print("Discharge start = %.1f" %(discharge[0]))
 
 # create complete time series of 15 min (above) with no gaps
 times = []    
@@ -71,10 +71,10 @@ while st_time < end_time:
     st_time += delta
     
 Num_missing = len(tobj)-len(dobj)
-print "%i total missing observations" %Num_missing    
+print("%i total missing observations" %Num_missing)    
           
 # fill gaps - this looks for all time slots with no data and inserts -901
-print "Start filling all gaps in timeseries (this takes a while)"  
+print("Start filling all gaps in timeseries (this takes a while)")  
 n=0;
 Q=[];      
 for i in range(len(times)):
@@ -92,11 +92,11 @@ for i in range(len(times)):
         else:
             Q.append(-901)
     if 1*i/float(int(len(times)/10)) % 1 == 0:
-        print "%i percent complete..." %(10*i/float(int(len(times)/10)))
-print "Finished filling gaps"     
+        print("%i percent complete..." %(10*i/float(int(len(times)/10))))
+print("Finished filling gaps")     
 
 #Interpolation routine- this looks for runs of 3hrs of -901
-print "Start interpolating gaps in timeseries"
+print("Start interpolating gaps in timeseries")
 Qni=list(Q);
 Qi=list(Q)
 j=1
@@ -120,15 +120,15 @@ while j:
     except ValueError:
         j=[]
         break  
-print "Finished interpolation"   
-print "%i gaps filled" %s   
+print("Finished interpolation")   
+print("%i gaps filled" %s)   
     
 # Write File
-f = open(filename[:-4]+'_filled.csv', 'wb')
-for i in xrange(len(times)):
+f = open(filename[:-4]+'_filled.csv', 'w')
+for i in range(len(times)):
     f.write("{},{}\n".format(times[i], Q[i]))
 f.close()
-print "File write complete ('%s_filled.csv')" %filename[:-4]   
+print("File write complete ('%s_filled.csv')" %filename[:-4])   
 
 
 
