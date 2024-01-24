@@ -8,6 +8,7 @@ library(reshape2)
 library(scales)
 library(RColorBrewer)
 library(lmomco)
+library(ggrepel)
 
 # Set working directory to folder for input/output files
 setwd("C:/Egnyte/Private/marissa/Projects/19-029 Viva Naughton Probable Maximum Flood Inflow Determination/Hydrology")
@@ -16,6 +17,7 @@ setwd("C:/Egnyte/Private/marissa/Projects/19-029 Viva Naughton Probable Maximum 
 # flow freq data columns: Annual exceedance probability (decimal, not percent), return period, flow, variance, 0.05 CL, 0.95 CL
 
 flow.freq <- read.csv("vvn_FlowFrequencyresults.csv")
+PMF.curve <- read.csv("vvn_FlowFrequency_plotpoints.csv")
 
 #rename columns for consistency in plotting
 colnames(flow.freq) <- c("AEP", "return.period", "flow", "variance", "UCL", "LCL")
@@ -23,6 +25,7 @@ colnames(flow.freq) <- c("AEP", "return.period", "flow", "variance", "UCL", "LCL
 # Use inverse normal distribution to find z value for all probabilities
 
 flow.freq$z.score <- qnorm(1-(flow.freq[,1]))
+PMF.curve$z.score <- qnorm(1-(PMF.curve[,2]))
 
 # Load or copy in annual peak data (not both)
 # Don't need to be sorted
@@ -44,8 +47,9 @@ observed <- data.frame(annual.peaks, weibull)
 observed$z.score <- qnorm(weibull)
 
 # Precipitation frequency modeled data points
-
-
+PMF <- subset(PMF.curve, Legend == "PMF-Based Frequency Curve")
+Modeled <- subset(PMF.curve, Legend == "Modeled Precipitation Frequency")
+Activation <- subset(PMF.curve, Legend == "Spillway Activation Discharge")
 
 ############ Plot Data #################
 # Plot FFA curve and points, and confidence limits
@@ -63,7 +67,7 @@ return.labels <- signif(1/xlabels, digits = 2)
 p <- ggplot(flow.freq, aes(x = z.score, color = Legend)) +
   geom_line(aes(y = flow, color = "Computed Curve" ), size = 1.25) +
   #geom_point(aes(y = flow)) +
-  scale_y_continuous(trans="log10", name = "Flow, cfs") +
+  scale_y_continuous(trans="log10", name = "Inflow, cfs") +
   scale_x_continuous(name = "Probability", breaks = xticks, labels = xlabels, 
                      sec.axis = dup_axis(name = "Return Period, years", labels = return.labels)) + 
   geom_line(aes(y = LCL, color = "95% Confidence Limit"), size = 1, linetype = "dashed") +
@@ -72,19 +76,30 @@ p <- ggplot(flow.freq, aes(x = z.score, color = Legend)) +
   theme_bw() +
   theme(panel.grid.minor = element_blank())
 
-# add observed data and legend
+# add observed data
 p <- p +
   geom_point(data = observed, aes(x = z.score, y = annual.peaks, color = "Observed Events"), 
-             shape = 1, size = 2) +
-  scale_color_manual(breaks = c("Computed Curve", "95% Confidence Limit", "5% Confidence Limit", "Observed Events"),
-                       values = c("black", "chartreuse3", "darkmagenta", "blue2"),
-                       guide = guide_legend(override.aes = list(
-                          linetype = c("solid", "dashed", "dashed", "blank"),
-                          shape = c(NA, NA, NA, 1)))) +
-  theme(legend.title = element_blank(), legend.position = c(.15, .85))
-  
+             shape = 1, size = 2)
+
 # Add precipitation frequency data  
-p
+p <- p +
+  geom_line(data = PMF, aes(x = z.score, y = flow, color = Legend), size = 1) +
+  geom_point(data = Modeled, aes(x = z.score, y = flow, color = Legend), size = 3) +
+  geom_point(data = Activation, aes(x = z.score, y = flow, color = Legend), size = 1.75, shape  = 15)
+
+
+# add legend
+p <- p +
+  scale_color_manual(breaks = c("Computed Curve", "95% Confidence Limit", "5% Confidence Limit", "Observed Events",
+                                "PMF-Based Frequency Curve", "Modeled Precipitation Frequency", "Spillway Activation Discharge"),
+                       values = c("black", "chartreuse3", "darkmagenta", "blue2", "cornsilk4", "coral", "darkred"),
+                       guide = guide_legend(override.aes = list(
+                          linetype = c("solid", "dashed", "dashed", "blank", "solid", "blank", "blank"),
+                          shape = c(NA, NA, NA, 1, NA, 16, 15)))) +
+  theme(legend.title = element_blank(), legend.position = c(.17, .77))
+  
+# Add labels and PMF point
+p <- p + geom_point(aes(x = 4.782201, y = 29300), color = "cornsilk4", size = 4)
 
 
 # save the image to file (will save at same size/scale as shown in console viewer)
